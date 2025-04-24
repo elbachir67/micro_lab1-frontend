@@ -1,6 +1,6 @@
 // src/contexts/AuthContext.js
 import React, { createContext, useState, useEffect } from "react";
-import userService from "../services/authService";
+import userService from "../services/userService";
 
 export const AuthContext = createContext();
 
@@ -12,16 +12,19 @@ export const AuthProvider = ({ children }) => {
 
   // Vérifier si l'utilisateur est déjà connecté au chargement
   useEffect(() => {
-    // Récupérer les données utilisateur du localStorage
+    // Essayer de récupérer l'utilisateur du localStorage
     const storedUser = localStorage.getItem("currentUser");
     const token = localStorage.getItem("token");
 
     if (storedUser && token) {
       try {
-        setCurrentUser(JSON.parse(storedUser));
+        // Convertir la chaîne JSON en objet
+        const user = JSON.parse(storedUser);
+        setCurrentUser(user);
         setIsAuthenticated(true);
       } catch (err) {
         // En cas d'erreur de parsing, nettoyer le localStorage
+        console.error("Error parsing stored user:", err);
         localStorage.removeItem("currentUser");
         localStorage.removeItem("token");
       }
@@ -36,11 +39,12 @@ export const AuthProvider = ({ children }) => {
     setError(null);
 
     try {
+      // Utiliser le service unifié
       const response = await userService.authenticateUser(username, password);
 
-      // Stocker les informations utilisateur et le token
+      // Stocker les informations utilisateur
       localStorage.setItem("currentUser", JSON.stringify(response));
-      localStorage.setItem("token", "dummy-token"); // Remplacez par un vrai token si votre API en fournit un
+      localStorage.setItem("token", "dummy-token"); // À remplacer par un vrai token JWT si disponible
 
       setCurrentUser(response);
       setIsAuthenticated(true);
@@ -59,6 +63,7 @@ export const AuthProvider = ({ children }) => {
     setError(null);
 
     try {
+      // Utiliser le service unifié
       const response = await userService.createUser(userData);
       setLoading(false);
       return response;
@@ -96,25 +101,24 @@ export const AuthProvider = ({ children }) => {
       document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
     });
 
-    // Pas besoin de rediriger ici car le Header s'en charge
+    console.log("User logged out completely");
+  };
+
+  // Valeur retournée par le contexte
+  const contextValue = {
+    currentUser,
+    isAuthenticated,
+    loading,
+    error,
+    login,
+    register,
+    logout,
+    setCurrentUser,
+    setIsAuthenticated,
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        currentUser,
-        isAuthenticated,
-        loading,
-        error,
-        login,
-        register,
-        logout,
-        setCurrentUser,
-        setIsAuthenticated,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 
