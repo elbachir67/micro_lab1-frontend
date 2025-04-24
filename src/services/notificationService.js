@@ -1,7 +1,7 @@
-// src/services/taskService.js
+// src/services/notificationService.js
 import axios from "axios";
 
-const API_URL = "http://localhost:8082/api";
+const API_URL = "http://localhost:8083/api/notifications";
 
 // Create an axios instance
 const apiClient = axios.create({
@@ -26,68 +26,38 @@ apiClient.interceptors.request.use(
 );
 
 // Service functions
-const taskService = {
-  // Get all tasks for a user
-  getUserTasks: async userId => {
+const notificationService = {
+  // Get notifications for a user
+  getUserNotifications: async userId => {
     try {
-      const response = await apiClient.get(`/users/${userId}/tasks`);
+      const response = await apiClient.get(`/user/${userId}`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { error: "Failed to fetch tasks" };
+      throw error.response?.data || { error: "Failed to fetch notifications" };
     }
   },
 
-  // Get a specific task
-  getTask: async taskId => {
+  // Check for due tasks
+  checkDueTasks: async () => {
     try {
-      const response = await apiClient.get(`/tasks/${taskId}`);
+      const response = await apiClient.post(`/check-due-tasks`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { error: "Failed to fetch task" };
+      throw error.response?.data || { error: "Failed to check due tasks" };
     }
   },
 
-  // Create a new task
-  createTask: async task => {
+  // Mark notification as read
+  markAsRead: async notificationId => {
     try {
-      const response = await apiClient.post("/tasks", task);
+      const response = await apiClient.put(`/${notificationId}/read`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { error: "Failed to create task" };
-    }
-  },
-
-  // Update a task
-  updateTask: async (taskId, task) => {
-    try {
-      const response = await apiClient.put(`/tasks/${taskId}`, task);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { error: "Failed to update task" };
-    }
-  },
-
-  // Delete a task
-  deleteTask: async taskId => {
-    try {
-      await apiClient.delete(`/tasks/${taskId}`);
-      return true;
-    } catch (error) {
-      throw error.response?.data || { error: "Failed to delete task" };
-    }
-  },
-
-  // Mark a task as completed
-  completeTask: async taskId => {
-    try {
-      const response = await apiClient.put(`/tasks/${taskId}`, {
-        completed: true,
-      });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || { error: "Failed to complete task" };
+      throw (
+        error.response?.data || { error: "Failed to mark notification as read" }
+      );
     }
   },
 };
 
-export default taskService;
+export default notificationService;
