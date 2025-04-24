@@ -33,6 +33,7 @@ const notificationService = {
       const response = await apiClient.get(`/user/${userId}`);
       return response.data;
     } catch (error) {
+      console.error("Error fetching user notifications:", error);
       throw error.response?.data || { error: "Failed to fetch notifications" };
     }
   },
@@ -43,6 +44,7 @@ const notificationService = {
       const response = await apiClient.post(`/check-due-tasks`);
       return response.data;
     } catch (error) {
+      console.error("Error checking due tasks:", error);
       throw error.response?.data || { error: "Failed to check due tasks" };
     }
   },
@@ -53,9 +55,21 @@ const notificationService = {
       const response = await apiClient.put(`/${notificationId}/read`);
       return response.data;
     } catch (error) {
+      console.error("Error marking notification as read:", error);
       throw (
         error.response?.data || { error: "Failed to mark notification as read" }
       );
+    }
+  },
+
+  // Create a new notification (if needed)
+  createNotification: async notificationData => {
+    try {
+      const response = await apiClient.post("", notificationData);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating notification:", error);
+      throw error.response?.data || { error: "Failed to create notification" };
     }
   },
 };
