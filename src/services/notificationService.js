@@ -1,7 +1,7 @@
 // src/services/notificationService.js
 import axios from "axios";
 
-const API_URL = "http://localhost:8083/api";
+const API_URL = "http://localhost:8083/api/notifications";
 
 // Create an axios instance
 const apiClient = axios.create({
