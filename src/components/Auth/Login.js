@@ -23,6 +23,7 @@ const Login = () => {
     }
 
     try {
+      console.log("Login attempt with:", { username, password });
       await login(username, password);
       navigate("/dashboard");
     } catch (err) {

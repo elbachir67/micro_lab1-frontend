@@ -45,7 +45,7 @@ const Register = () => {
     }
 
     try {
-      await register(username, email, password);
+      await register({ username, email, password });
       navigate("/dashboard");
     } catch (err) {
       setFormError(err.error || "Registration failed. Please try again.");
